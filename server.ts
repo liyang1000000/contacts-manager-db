@@ -9,17 +9,22 @@ import { join } from 'path'
 // Faster server renders w/ Prod Mode (dev mode never needed)
 enableProdMode()
 
+const cors = require('cors')
+const mongoose = require('mongoose')
+const bodyParser = require('body-parser')
+
+mongoose.Promise = global.Promise
+mongoose.connect('mongodb://localhost:27017/contacts-manager').then(
+	() => {console.log('Database is connected')},
+	err => {console.log('Can not connect to te database' + err)}
+)
+
 // Express Server
 const app = express()
 
 const PORT = process.env.PORT || 4000
 const DIST_FOLDER = join(process.cwd(), 'dist')
-const fs = require('fs')
 
-let rawdata = fs.readFileSync('./src/data.json')
-let contacts = JSON.parse(rawdata)
-
-const bodyParser = require('body-parser')
 app.use(bodyParser.json())
 
 // *NOTE :: leave this as require() since this file is built Dynamically from webpack
@@ -41,45 +46,105 @@ app.engine('html', ngExpressEngine({
 app.set('view engine', 'html')
 app.set('views', join(DIST_FOLDER, 'browser'))
 
+const Schema = mongoose.Schema
+
+let ContactModel = new Schema({
+	fName: { type: String },
+	lName: { type: String },
+	email: { type: String },
+	phone: { type: String },
+	status: { type: String }
+})
+
+let Contact = mongoose.model('Contact', ContactModel)
+
 /*app.get('/api/*', (req, res) => {
   res.status(404).send('data requests are not supported')
 })*/
 
 app.route('/api/contacts').get((req, res) => {
-	res.send(contacts)
+	Contact.find(function(err, contacts) {
+		if (err) {
+			console.log(err)
+		} else {
+			let finalContacts = []
+			for(const contact of contacts) {
+				let newContact = {
+					id: contact._id,
+					fName: contact.fName,
+					lName: contact.lName,
+					email: contact.email,
+					phone: contact.phone,
+					status: contact.status
+				}
+				finalContacts.push(newContact)
+			}
+			res.json(finalContacts)
+		}
+	})
 })
 
 app.route('/api/contacts/:id').get((req, res) => {
-	const requestedContactId  = req.params['id']
-  res.send(contacts.find((item)=>{ return item.id === requestedContactId}))
+  Contact.findById(req.params['id'], (err, contact) => {
+  	if (!contact) {
+  		return new Error('Could not load Document')
+  	} else {
+  		let newContact = {
+				id: contact._id,
+				fName: contact.fName,
+				lName: contact.lName,
+				email: contact.email,
+				phone: contact.phone,
+				status: contact.status
+			}
+  		res.json(newContact)
+  	}
+  })
 })
 
 app.route('/api/contacts').post((req, res) => {
-	contacts.push(req.body)
-	fs.writeFileSync('./src/data.json', JSON.stringify(contacts, null, 2))
-	res.status(201).send(req.body)
+	let contact = new Contact(req.body)
+	contact.save().then(data => {
+		let newContact = {
+					id: data._id,
+					fName: contact.fName,
+					lName: contact.lName,
+					email: contact.email,
+					phone: contact.phone,
+					status: contact.status
+				}
+		res.status(201).send(req.body)
+	})
+	.catch(err => {
+		res.status(400).send("unable to save to database")
+	})
 })
 
 app.route('/api/contacts/:id').put((req, res) => {
-	for (let i = 0; i < contacts.length; i++) {
-		if (contacts[i].id === req.params['id']) {
-			contacts[i] = req.body
-			break
+	Contact.findById(req.params['id'], (err, contact) => {
+		if (!contact) {
+			return new Error('Could not find contact')
+		} else {
+			contact.fName = req.body.fName
+			contact.lName = req.body.lName
+			contact.email = req.body.email
+			contact.phone = req.body.phone
+			contact.status = req.body.status
+
+			contact.save().then(data => {
+				res.json(contact)
+			}).catch(err => {
+				res.status(400).send('Unable to update the database')
+			})
 		}
-	}
-	fs.writeFileSync('./src/data.json', JSON.stringify(contacts, null, 2))
-	res.status(200).send(req.body)
+	})
 })
 
 app.route('/api/contacts/:id').delete((req, res) => {
-	for (let i = 0; i < contacts.length; i++) {
-		if (contacts[i].id === req.params['id']) {
-			contacts.splice(i, 1)
-			break
-		}
-	}
-	fs.writeFileSync('./src/data.json', JSON.stringify(contacts, null, 2))
-	res.send(req.body)
+	Contact.findByIdAndRemove({_id: req.params['id']}, (err, contact) => {
+		if (err) res.json(err)
+		else res.json(req.body)
+	})
 })
 
 // Server static files from /browser
