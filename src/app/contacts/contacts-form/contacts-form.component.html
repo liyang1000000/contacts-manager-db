@@ -1,0 +1,46 @@
+<h2 *ngIf="formType==='new'">Create New Contact</h2>
+<h2 *ngIf="formType==='edit'">Update Contact</h2>
+<app-notifications></app-notifications>
+<div class="required-blurb">(*) indicates required fields</div>
+<form [formGroup]="contactForm" (ngSubmit)="onSubmit(contactForm)">
+	<div class="form-group" [ngClass]="displayFieldCss('fName')">
+		<label class="control-label" for="fName">First Name <span class="required-mark">(*)</span>:</label>
+		<input id="fName" class="form-control" type="text" formControlName="fName" required>
+		<span *ngIf="isFieldValid('fName')" class="help-block">
+			<span>Please type in the First Name</span>
+		</span>
+	</div>
+	<div class="form-group" [ngClass]="displayFieldCss('lName')">
+		<label class="control-label" for="lName">Last Name <span class="required-mark">(*)</span>:</label>
+		<input id="lName" class="form-control" type="text" formControlName="lName" required>
+		<span *ngIf="isFieldValid('lName')" class="help-block">
+			<span>Please type in the Last Name</span>
+		</span>
+	</div>
+	<div class="form-group" [ngClass]="displayFieldCss('email')">
+		<label class="control-label" for="email">Email <span class="required-mark">(*)</span>:</label>
+		<input id="email" class="form-control" type="email" formControlName="email" required>
+		<span *ngIf="isFieldValid('email')" class="help-block">
+			<span>Please type in the valid email</span>
+		</span>
+	</div>
+	<div class="form-group">
+		<label class="control-label" for="phone">Phone Number:</label>
+		<input id="phone" class="form-control" type="text" formControlName="phone">
+	</div>
+	<div class="form-group" [ngClass]="displayFieldCss('status')">
+		<label class="control-label" for="status">Status <span class="required-mark">(*)</span>:</label>
+		<select id="status" class="form-control" formControlName="status" required>
+			<option value="active">Active</option>
+			<option value="inactive">Inactive</option>
+		</select>
+		<span *ngIf="isFieldValid('status')" class="help-block">
+			<span>Please type in Status</span>
+		</span>
+	</div>
+	<button class="btn btn-primary" type="submit"  *ngIf="formType==='new'">Create</button>
+	<button class="btn btn-primary" type="submit"  *ngIf="formType==='edit'">Save</button>
+	<button class="btn btn-light" routerLink="/contacts">Cancel</button>
+</form>
+
+

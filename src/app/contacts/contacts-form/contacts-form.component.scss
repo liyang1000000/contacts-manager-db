@@ -1,0 +1,27 @@
+$validation-warning: #a94442;
+
+.has-error {
+	.form-control {
+		border-color: $validation-warning;
+	}
+
+	.control-label,
+	.help-block {
+		color: $validation-warning;
+	}
+}
+
+.btn {
+	margin-right: 5px;
+}
+
+.required-blurb {
+	color: $validation-warning;
+	font-size: 13px;
+	margin-bottom: 5px;
+}
+
+.required-mark {
+	color: $validation-warning;
+	font-size: 12px;
+}

@@ -1,0 +1,74 @@
+<h2>Contacts List</h2>
+<app-notifications></app-notifications>
+<div class="filter-container">
+	<div class="row">
+		<div class="col-lg-6 col-md-6 col-sm-6 col-xs-12">
+			<label for="keyword">Keyword:</label>
+			<input name="keyword" [(ngModel)]="keyword" class="form-control" placeholder="Please type in your keyword to filter" />
+		</div>
+		<div class="col-lg-6 col-md-6 col-sm-6 col-xs-12">
+			<label for="status"> Status: </label>
+			<select name="status" [(ngModel)]="status" class="form-control">
+				<option value="" selected>Not Specified</option>
+				<option value="active">Active</option>
+				<option value="inactive">Inactive</option>
+			</select>
+		</div>
+	</div>
+</div>
+<div *ngIf="!contacts || contacts.length ===0" class="empty-list">
+	Sorry. There are currently no contacts. Please add it now!
+</div>
+<div *ngIf="contacts && contacts.length > 0" class="contacts-container">
+	<table class="table responsive-table">
+		<thead>
+			<tr>
+				<th>First Name</th>
+				<th>Last Name</th>
+				<th>Email</th>
+				<th>Phone Number</th>
+				<th>Status</th>
+				<th></th>
+			</tr>
+		</thead>
+		<tr *ngFor="let contact of contacts | filter: keyword : status : filteredItems | pagination: this.getStartRow(): this.getEndRow()">
+			<td class="firstName">{{contact.fName}}</td>
+			<td class="lastName">{{contact.lName}}</td>
+			<td class="email">{{contact.email}}</td>
+			<td class="phone">{{contact.phone}}</td>
+			<td class="status">{{contact.status}}</td>
+			<td class="edit">
+				<button class="btn btn-primary" [routerLink]="['/contact', contact.id]">Edit</button>
+			</td>
+			<td class="delete">
+				<button class="btn btn-danger" (click)="targetContact=contact; openModal(confirmation)">Delete</button>
+			</td>
+			<td class="inactivate">
+				<button *ngIf="contact.status==='active'" class="btn btn-info" (click)="inactivateContact(contact)">Inactivate</button>
+			</td>
+		</tr>
+	</table>
+	<div class="pagination-container">
+		<div class="pagination-item-container">
+			<span>Show</span>
+			<select class="form-control" [(ngModel)]="perPage">
+				<option value="5">5</option>
+				<option value="10" selected>10</option>
+				<option value="25">25</option>
+				<option value="100">100</option>
+			</select>
+			<span>items Per Page</span>
+		</div>
+		<pagination [totalItems]="filteredItems.models.length" [maxSize]="6" [itemsPerPage]="perPage" [(ngModel)]="currentPage"></pagination>
+	</div>
+</div>
+<div>
+	<button class="btn btn-primary" routerLink="/contact/new">Add New Contact</button>
+</div>
+<ng-template #confirmation>
+	<div class="modal-body text-center">
+		<p>Are you sure you want to delete this contact? This action could not be undone!</p>
+		<button type="button" class="btn btn-primary" (click)="confirm()">Yes</button>
+		<button type="button" class="btn btn-default" (click)="decline()">No</button>
+	</div>
+</ng-template>

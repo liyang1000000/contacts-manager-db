@@ -1,0 +1,134 @@
+.filter-container {
+	background: #eee;
+	padding: 15px;
+}
+
+.pagination-container {
+	display: flex;
+	flex-direction: row;
+	flex-wrap: wrap;
+	align-items: center;
+	justify-content: space-between;
+
+	.pagination-item-container {
+		display: flex;
+		align-items: baseline;
+		justify-content: space-between;
+
+		select {
+			margin-left: 5px;
+			margin-right: 5px;
+		}
+	}
+
+	.form-control {
+		width: 60px;
+		margin-bottom: 10px;
+	}
+}
+
+@mixin responsive-table-label($label) {
+	td.#{$label}::before {
+		content: $label;
+	}
+}
+
+.empty-list {
+	padding: 15px;
+	width: 100%;
+	background: #eee;
+	font-weight: 500;
+	text-align: center;
+}
+
+.responsive-table {
+	tr {
+		border-bottom: 1px dotted #ccc;
+		th {
+			font-size: 12px;
+			font-weight: 600;
+			padding-left: 5px;
+			padding-right: 5px;
+			vertical-align: middle;
+			border-top: none;
+		}
+		td {
+			padding-left: 5px;
+			padding-right: 5px;
+			vertical-align: middle;
+
+			.btn {
+				font-size: 12px;
+				padding: 10px;
+			}
+		}
+		thead {
+			border-bottom: none;
+		}
+	}
+}
+
+@media screen and (max-width: 767px) {
+	.responsive-table {
+		display: block;
+		border-collapse: collapse;
+
+		tbody, 
+		td,
+		th,
+		thead,
+		tr {
+			display: block;
+		}
+
+		tr {
+			border: 1px solid #ccc;
+		}
+
+		thead {
+			tr {
+				position: absolute;
+				top: -9999px;
+				left: -9999px;
+
+				th {
+					border-top: 0;
+				}
+			}
+		}
+
+		tbody {
+			tr {
+				td {
+					border: none;
+					position: relative;
+					padding: 10px 8px;
+					padding-left: 40%;
+					.btn {
+						width: 100px;
+						font-size: 14px;
+					}
+				}
+
+				td::before {
+					position: absolute;
+					left: 20px;
+					width: 30%;
+					padding-right: 10px;
+					white-space: nowrap;
+					text-transform: capitalize;
+				}
+
+				@include responsive-table-label('firstName');
+				@include responsive-table-label('lastName');
+				@include responsive-table-label('email');
+				@include responsive-table-label('phone');
+				@include responsive-table-label('status');
+				@include responsive-table-label('edit');
+				@include responsive-table-label('delete');
+				@include responsive-table-label('inactivate');
+			}
+		}
+	}
+}
+
